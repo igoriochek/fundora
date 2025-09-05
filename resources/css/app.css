@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+@plugin '@tailwindcss/forms';
+@plugin "flowbite/plugin";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source "../node_modules/flowbite";
+
+@theme {
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+
+    --color-primary-color: #013538;
+    --color-secondary-color: #002f33;
+    --color-header-color: #013d41;
+    --color-button-color: #02484d;
+}
+
+@layer base {
+    h1 {
+        font-size: 1.875rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    h3 {
+        font-size: 1.25rem;
+    }
+    h4 {
+        font-size: 1.125rem;
+    }
+    h5 {
+        font-size: 1.0625rem;
+    }
+}
+
+.button {
+    &:hover {
+        box-shadow: rgba(255, 255, 255, 0.16) 0px 1px 1px,
+            rgb(255, 255, 255) 0px 0px 0px 1px;
+    }
+}
