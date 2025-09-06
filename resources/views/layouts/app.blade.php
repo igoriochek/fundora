@@ -14,7 +14,7 @@
         <title>{{ config('app.name') }}</title>
     @endif
 
-    <link rel="icon" href="{{ asset('images/logo1.jpg') }}">
+    <link rel="icon" href="{{ asset('images/fundora-logo.jpg') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
