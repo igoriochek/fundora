@@ -3,7 +3,7 @@
 return [
 
     'heroTitle' => 'Patikimos investicijos į globalų nekilnojamą turtą',
-    'heroDescription' => 'Sujungiame jus su aukščiausios kokybės nekilnojamojo turto galimybėmis visoje Europoje, Azijoje ir Amerikoje.',
+    'heroDescription' => 'Sujungiame jus su aukščiausios kokybės nekilnojamojo turto galimybėmis visoje Europoje ir Azijoje.',
     'heroButton' => 'Naršyti investavimo galimybes',
     'whyFundoraTitle' => 'Kodėl Fundora',
     'whyFundoraFirstCardTitle' => 'Pasitikėjimas ir patirtis',
