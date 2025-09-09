@@ -99,24 +99,25 @@ class CasesService implements CasesServiceInterface
     public function uploadCaseImage(object $image): void
     {
         $imageName = $image->getClientOriginalName();
-        $path = public_path('images/cases');
-        $pathWithImage = public_path("images/cases/$imageName");
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/images/cases';
+       
+        if (!file_exists($path)) {
+        mkdir($path, 0755, true);
+    }
+     $image->move($path, $imageName);
 
-        if (!file_exists($pathWithImage)) {
-            $image->move($path, $imageName);
-            Log::info(__('Successfully uploaded case image.'));
-        } else
-            Log::error(__('Image file not found.'));
+    Log::info(__('Successfully uploaded case image.'));
     }
 
     public function removeCaseImage(string $imageName): void
     {
-        $pathWithImage = public_path("images/cases/$imageName");
+        $pathWithImage = $_SERVER['DOCUMENT_ROOT'] . "/images/cases/$imageName";
 
-        if (file_exists($pathWithImage)) {
-            File::delete($pathWithImage);
-            Log::info(__('Successfully removed case image.'));
-        } else
-            Log::error(__('Image file not found.'));
+    if (file_exists($pathWithImage)) {
+        unlink($pathWithImage);
+        Log::info(__('Successfully removed case image.'));
+    } else {
+        Log::error(__('Image file not found.'));
+    }
     }
 }
