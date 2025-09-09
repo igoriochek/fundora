@@ -1,3 +1,7 @@
+ @php
+    $selectedCountry = $case->product_country_id;
+    $selectedCountryName = $countries->firstWhere('id', $selectedCountry)?->name ?? '';
+@endphp
 <form class="space-y-4" method="post" action="{{ route('cases.update', $case) }}" enctype="multipart/form-data"
     files="true">
     @csrf
@@ -30,14 +34,15 @@
             <label for="product_country_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 {{ __('forms.country') }}
             </label>
-            <select name="product_country_id" id="product_country_id" aria-colcount=""
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-                <option value="" selected>{{ __('texts.casesChooseCountry') }}</option>
+            <input type="text" id="country_search" placeholder="{{ __('texts.casesChooseCountry') }}"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                value="{{ $selectedCountryName }}">
+            <ul id="country_list" class="w-50 absolute text-sm bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white rounded-lg max-h-60 overflow-auto hidden">
                 @foreach ($countries as $country)
-                    <option value="{{ $country->id }}" @if ($country->id === $case->product_country_id) selected @endif>
-                        {{ $country->name }}</option>
+                    <li data-id="{{ $country->id }}" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">{{ $country->name }}</li>
                 @endforeach
-            </select>
+            </ul>
+            <input type="hidden" name="product_country_id" id="product_country_id" value="{{ $selectedCountry }}">
             @error('product_country_id')
                 <span class="text-red-500 pt-2">{{ $message }}</span>
             @enderror
@@ -120,6 +125,50 @@
         </x-secondary-button>
     </div>
 </form>
+
+<script>
+const input = document.getElementById('country_search');
+const list = document.getElementById('country_list');
+const hiddenInput = document.getElementById('product_country_id');
+
+input.addEventListener('input', () => {
+    const value = input.value.toLowerCase();
+    let hasVisible = false;
+
+    Array.from(list.children).forEach(li => {
+        if (li.textContent.toLowerCase().includes(value)) {
+            li.style.display = '';
+            hasVisible = true;
+        } else {
+            li.style.display = 'none';
+        }
+    });
+
+    list.style.display = hasVisible ? 'block' : 'none';
+
+    const match = Array.from(list.children).find(li => li.textContent.toLowerCase() === value);
+    hiddenInput.value = match ? match.dataset.id : '';
+});
+
+Array.from(list.children).forEach(li => {
+    li.addEventListener('click', () => {
+        input.value = li.textContent;
+        hiddenInput.value = li.dataset.id;
+        list.style.display = 'none';
+    });
+});
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.relative')) list.style.display = 'none';
+});
+
+document.querySelector('form').addEventListener('submit', e => {
+    if (!hiddenInput.value) {
+        e.preventDefault();
+        alert('Pasirinkite galiojančią šalį iš sąrašo');
+    }
+});
+</script>
 
 <script>
     const setVisibilityValue = () => {
