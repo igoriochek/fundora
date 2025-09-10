@@ -86,7 +86,6 @@ class CaseController extends Controller
                 : $case->image;
             $caseTranslations = $case->translations()->get();
 
-            // Checking whether the new image is different from the previous image.
             if ($validatedInput['image'] !== $case->image) {
                 $this->casesService->removeCaseImage($case->image);
                 $this->casesService->uploadCaseImage($validatedInput['image']);
