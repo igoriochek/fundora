@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}">
-                        <img class="block w-auto size-12" src="{{ asset('images/fundora-logo.jpg') }}"
+                        <img class="block w-auto size-10" src="{{ asset('images/fundora-logo.jpg') }}"
                             alt="{{ config('app.name') }}">
                     </a>
                 </div>
