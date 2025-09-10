@@ -1,7 +1,3 @@
- @php
-    $selectedCountry = $case->product_country_id;
-    $selectedCountryName = $countries->firstWhere('id', $selectedCountry)?->name ?? '';
-@endphp
 <form class="space-y-4" method="post" action="{{ route('cases.update', $case) }}" enctype="multipart/form-data"
     files="true">
     @csrf
@@ -37,7 +33,7 @@
             <input type="text" id="country_search" placeholder="{{ __('texts.casesChooseCountry') }}"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                 value="{{ $selectedCountryName }}">
-            <ul id="country_list" class="w-50 absolute text-sm bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white rounded-lg max-h-60 overflow-auto hidden">
+            <ul id="country_list" class="w-[30%] absolute text-sm bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white rounded-lg max-h-60 overflow-auto hidden">
                 @foreach ($countries as $country)
                     <li data-id="{{ $country->id }}" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">{{ $country->name }}</li>
                 @endforeach

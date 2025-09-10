@@ -61,10 +61,17 @@ class CaseController extends Controller
     {
         $this->authorize('update', $case);
 
+        $countries = ProductCountry::all();
+
+        $selectedCountry = $case->product_country_id;
+        $selectedCountryName = $countries->firstWhere('id', $selectedCountry)?->name ?? '';
+
         return view('admin.cases.edit')
             ->with([
                 'case' => $case,
-                'countries' => ProductCountry::all()
+                'countries' => $countries,
+                'selectedCountry' => $selectedCountry,
+                'selectedCountryName' => $selectedCountryName,
             ]);
     }
 
