@@ -31,8 +31,8 @@
                                 <x-heroicon-o-phone class="size-8" />
                                 <div>
                                     <h4 class="font-medium">{{ __('texts.bookConsultationPhone') }}</h4>
-                                    <a href="tel:+37061572799" class="opacity-75 hover:opacity-50">
-                                        {{ __('+370 615 82 799') }}
+                                    <a href="tel:+37065051699" class="opacity-75 hover:opacity-50">
+                                        {{ __('+370 650 51 699') }}
                                     </a>
                                 </div>
                             </div>
