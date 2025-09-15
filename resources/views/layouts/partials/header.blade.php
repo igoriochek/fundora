@@ -21,7 +21,7 @@
             <div class="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
                 <div class="flex shrink-0 items-center">
                     <a href="{{ route('home') }}">
-                        <img class="w-auto size-10" src="{{ asset('images/fundora-logo.jpg') }}"
+                        <img class="w-auto size-10" src="{{ asset('images/logo1.jpg') }}"
                             alt="{{ config('app.name') }}">
                         {{-- <span class="text-amber-200 uppercase tracking-widest">{{ __('Fundora') }}</span> --}}
                     </a>
