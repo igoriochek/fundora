@@ -13,18 +13,20 @@ class CasesService implements CasesServiceInterface
 {
     public function getCasesByCountry(string $country): Collection
     {
-        return ProductCountry::join(
+        $productCountry = ProductCountry::join(
             'product_country_translations',
             'product_country_translations.product_country_id',
             'product_countries.id'
         )
-            ->where(
-                'product_country_translations.name',
-                'LIKE',
-                "%{$country}%"
-            )
-            ->first()
-            ->products;
+        ->where('product_country_translations.name', 'LIKE', "%{$country}%")
+        ->select('product_countries.*')
+        ->first();
+
+    if (!$productCountry) {
+        return collect();
+    }
+
+    return $productCountry->products ?? collect();
     }
 
     public function getVisibleCases(?Collection $cases): Collection
