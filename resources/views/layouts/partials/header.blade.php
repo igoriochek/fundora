@@ -136,7 +136,7 @@
 
         languages.addEventListener('change', () => {
             const locale = languages.value.toLowerCase();
-            const route = '{{ route('changeLanguage') }}/'.concat(locale)
+            const route = "{{ route('changeLanguage') }}/".concat(locale)
             window.location.replace(route)
         })
     }

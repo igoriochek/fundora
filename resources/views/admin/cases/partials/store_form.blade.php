@@ -28,13 +28,16 @@
             <label for="product_country_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 {{ __('forms.country') }}
             </label>
-            <select name="product_country_id" id="product_country_id" aria-colcount=""
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
-                <option value="" selected>{{ __('texts.casesChooseCountry') }}</option>
+            <input type="text" id="country_search" placeholder="{{ __('texts.casesChooseCountry') }}"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+            <ul id="country_list"
+                class="w-[30%] absolute text-sm bg-gray-50 border border-gray-300 text-gray-900 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white rounded-lg max-h-60 overflow-auto hidden">
                 @foreach ($countries as $country)
-                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                    <li data-id="{{ $country->id }}"
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">{{ $country->name }}</li>
                 @endforeach
-            </select>
+            </ul>
+            <input type="hidden" name="product_country_id" id="product_country_id" value="">
             @error('product_country_id')
                 <span class="text-red-500 pt-2">{{ $message }}</span>
             @enderror
@@ -53,15 +56,23 @@
             </div>
         @endforeach
         <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="image">
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="images">
                 {{ __('forms.uploadImage') . ' (' . __('forms.uploadDescription') . ')' }}
             </label>
             <input
                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                id="image" type="file" name="image">
-            @error('image')
+                id="images" type="file" name="images[]" multiple
+            >
+            <input type="hidden" name="image_order" id="image_order">
+            @error('images')
                 <span class="text-red-500 pt-2">{{ $message }}</span>
             @enderror
+            @error('images.*')
+              <span class="text-red-500 pt-2">{{ $message }}</span>
+            @enderror
+            <div id="images_preview_block" class="mt-2 hidden">
+              <div id="images_preview" class="flex gap-2 flex-wrap"></div>
+            </div>
         </div>
         <div class="flex flex-col justify-center mt-2">
             <div class="flex items-center">
@@ -115,6 +126,50 @@
 </form>
 
 <script>
+  const input = document.getElementById('country_search');
+  const list = document.getElementById('country_list');
+  const hiddenInput = document.getElementById('product_country_id');
+
+  input.addEventListener('input', () => {
+      const value = input.value.toLowerCase();
+      let hasVisible = false;
+
+      Array.from(list.children).forEach(li => {
+          if (li.textContent.toLowerCase().includes(value)) {
+              li.style.display = '';
+              hasVisible = true;
+          } else {
+              li.style.display = 'none';
+          }
+      });
+
+      list.style.display = hasVisible ? 'block' : 'none';
+
+      const match = Array.from(list.children).find(li => li.textContent.toLowerCase() === value);
+      hiddenInput.value = match ? match.dataset.id : '';
+  });
+
+  Array.from(list.children).forEach(li => {
+      li.addEventListener('click', () => {
+          input.value = li.textContent;
+          hiddenInput.value = li.dataset.id;
+          list.style.display = 'none';
+      });
+  });
+
+  document.addEventListener('click', e => {
+      if (!e.target.closest('.relative')) list.style.display = 'none';
+  });
+
+  document.querySelector('form').addEventListener('submit', e => {
+      if (!hiddenInput.value) {
+          e.preventDefault();
+          alert('Pasirinkite galiojančią šalį iš sąrašo');
+      }
+  });
+</script>
+
+<script>
     const setVisibilityValue = () => {
         const visibility = document.getElementById('is_visible')
 
@@ -123,4 +178,107 @@
     }
 
     setVisibilityValue()
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const imagesInput = document.getElementById('images');
+    const previewBlock = document.getElementById('images_preview_block');
+    const previewContainer = document.getElementById('images_preview');
+    const imageOrderInput = document.getElementById('image_order');
+
+    if (!imagesInput || !previewContainer) return;
+
+    let filesArray = [];
+
+    function syncInputFiles() {
+        const dt = new DataTransfer();
+        filesArray.forEach(f => dt.items.add(f));
+        imagesInput.files = dt.files;
+    }
+
+    function renderPreview() {
+        previewContainer.innerHTML = '';
+
+        if (filesArray.length === 0) {
+            previewBlock.classList.add('hidden');
+            if (imageOrderInput) imageOrderInput.value = '';
+            return;
+        }
+
+        previewBlock.classList.remove('hidden');
+
+        filesArray.forEach((file, idx) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative w-24 h-24 border rounded overflow-hidden image-wrapper';
+            wrapper.dataset.index = idx;
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = () => URL.revokeObjectURL(img.src);
+            img.className = 'object-cover w-full h-full';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-80 hover:opacity-100 transition';
+            removeBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>`;
+
+            removeBtn.addEventListener('click', () => {
+                filesArray.splice(idx, 1);
+                syncInputFiles();
+                renderPreview();
+            });
+
+            wrapper.appendChild(img);
+
+            if (idx === 0) {
+                const starIcon = document.createElement('div');
+                starIcon.className = 'absolute top-0 left-0 star-icon bg-black opacity-80 rounded-full w-5 h-5 flex items-center justify-center';
+                starIcon.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    </svg>`;
+                wrapper.appendChild(starIcon);
+            }
+
+            wrapper.appendChild(removeBtn);
+            previewContainer.appendChild(wrapper);
+        });
+
+        if (imageOrderInput) {
+            imageOrderInput.value = filesArray.map((_, i) => i).join(',');
+        }
+    }
+
+    imagesInput.addEventListener('change', (e) => {
+        const incoming = Array.from(e.target.files || []);
+        incoming.forEach(f => {
+            const key = `${f.name}_${f.size}`;
+            if (!filesArray.some(existing => `${existing.name}_${existing.size}` === key)) {
+                filesArray.push(f);
+            }
+        });
+        syncInputFiles();
+        renderPreview();
+    });
+
+    Sortable.create(previewContainer, {
+        animation: 150,
+        onEnd: (evt) => {
+            const moved = filesArray.splice(evt.oldIndex, 1)[0];
+            filesArray.splice(evt.newIndex, 0, moved);
+            syncInputFiles();
+            renderPreview();
+        }
+    });
+
+    if (imagesInput.files && imagesInput.files.length > 0) {
+        filesArray = Array.from(imagesInput.files);
+        renderPreview();
+    }
+});
 </script>

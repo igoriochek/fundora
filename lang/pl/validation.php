@@ -163,6 +163,10 @@ return [
     'url' => 'Pole :attribute musi być prawidłowym adresem URL.',
     'ulid' => 'Pole :attribute musi być prawidłowym identyfikatorem ULID.',
     'uuid' => 'Pole :attribute musi być prawidłowym identyfikatorem UUID.',
+    'case_images' => [
+    'at_least_one' => 'Musisz mieć przynajmniej jedno zdjęcie. Nie można usunąć wszystkich bez dodania nowych.',
+    'max_limit' => 'Nie możesz mieć więcej niż :max zdjęć.',
+    ],
 
     /*
     |--------------------------------------------------------------------------

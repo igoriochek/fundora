@@ -15,10 +15,10 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 
-    --color-primary-color: #013538;
-    --color-secondary-color: #002f33;
-    --color-header-color: #013d41;
-    --color-button-color: #02484d;
+    --color-primary-color: #1F212E;
+    --color-secondary-color: #1E1B29;
+    --color-header-color: #1f2937;
+    --color-button-color: #203443;
 }
 
 @layer base {

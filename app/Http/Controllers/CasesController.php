@@ -23,7 +23,12 @@ class CasesController extends Controller
             $this->cases = $this->casesService->getCasesByCountry($query['country']);
 
         $this->cases = $this->casesService->getVisibleCases($this->cases);
-        $this->cases = $this->cases->toQuery()->paginate(5)->appends($query);
+        
+        if ($this->cases->isNotEmpty()) {
+          $this->cases = $this->cases->toQuery()->paginate(5)->appends($query);
+        } else {
+          $this->cases = collect();
+        }
 
         return view('cases.index')
             ->with([

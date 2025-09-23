@@ -1,6 +1,24 @@
 <div class="case flex md:flex-row flex-col gap-10 p-10 bg-primary-color w-110 md:w-full">
-    <img src="{{ asset("images/cases/$case->image") }}" alt="{{ $case->name }}"
-        class="w-100 h-100 md:h-auto object-cover">
+    <div class="image-wrapper flex flex-col min-w-80 md:min-w-100">  
+        <img
+    src="{{ asset('images/cases/' . $case->mainImage->image) }}" 
+    alt="{{ $case->name }}"
+    class="mainImage w-100 h-100 md:h-full object-cover"
+/>
+        @if($case->images->count() > 1)
+        <div class="thumbnails flex mt-1 flex-wrap">
+            @foreach ($case->images->sortBy('sort_order') as $image)
+                <img 
+                  src="{{ asset('images/cases/' . $image->image) }}" 
+                  alt="Thumbnail" 
+                  class="w-[20%] h-15 object-cover cursor-pointer border border-transparent hover:border-blue-500"
+                  data-src="{{ asset('images/cases/' . $image->image) }}"
+                  loading="lazy"
+                >
+            @endforeach
+        </div>
+        @endif
+    </div>  
     <div class="flex flex-col justify-between gap-10">
         <div class="flex flex-col gap-6">
             <div class="flex flex-col">
@@ -38,3 +56,11 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelectorAll('.thumbnails img').forEach(img => {
+    img.addEventListener('click', () => {
+        const caseContainer = img.closest('.case'); 
+        caseContainer.querySelector('.mainImage').src = img.dataset.src;
+    });
+});
+</script>

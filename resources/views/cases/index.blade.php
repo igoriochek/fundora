@@ -27,9 +27,11 @@
                     @empty
                         <p class="text-md text-gray-300">{{ __('texts.casesEmpty') }}</p>
                     @endforelse
-                    <div class="pagination">
-                        {{ $cases->links() }}
-                    </div>
+                    @if($cases->isNotEmpty())
+                      <div class="pagination">
+                          {{ $cases->links() }}
+                      </div>
+                    @endif
                 </div>
             </form>
         </section>

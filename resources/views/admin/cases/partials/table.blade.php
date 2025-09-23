@@ -78,10 +78,13 @@
                                 {{ __('forms.edit') }}
                             </a>
                         </x-primary-button>
-                        <x-danger-button type="button" data-modal-target="popup-modal" data-modal-toggle="popup-modal">
+                        <x-danger-button class="cursor-pointer" type="button" data-modal-target="popup-modal-{{ $case->id }}" data-modal-toggle="popup-modal-{{ $case->id }}">
                             {{ __('forms.delete') }}
                         </x-danger-button>
-                        @include('admin.cases.partials.destroy_form')
+                        @include('admin.cases.partials.destroy_form', [
+                          'case' => $case,
+                          'modalId' => 'popup-modal-' . $case->id
+                        ])
                     </td>
                 </tr>
             @empty

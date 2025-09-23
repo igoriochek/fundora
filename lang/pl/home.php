@@ -3,7 +3,7 @@
 return [
 
     'heroTitle' => 'Zaufane globalne inwestycje w nieruchomości',
-    'heroDescription' => 'Łączymy Cię z najlepszymi możliwościami w zakresie nieruchomości w Europie, Azji i obu Amerykach.',
+    'heroDescription' => 'Łączymy Cię z najlepszymi możliwościami w zakresie nieruchomości w Europie i Azji.',
     'heroButton' => 'Odkryj możliwości inwestycyjne',
     'whyFundoraTitle' => 'Dlaczego Fundora',
     'whyFundoraFirstCardTitle' => 'Zaufanie i doświadczenie',

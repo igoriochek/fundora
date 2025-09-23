@@ -15,14 +15,12 @@ class Product extends Model
 
     protected $fillable = [
         "address",
-        "image",
         "is_visible",
         "product_country_id"
     ];
 
     protected $casts = [
         "address" => "string",
-        "image" => 'string',
         "is_visible" => "boolean",
         "product_country_id" => "integer"
     ];
@@ -77,5 +75,15 @@ class Product extends Model
             'product_country_id',
             'id'
         );
+    }
+
+    public function images(): HasMany
+    {
+      return $this->hasMany(ProductImage::class);
+    }
+
+    public function getMainImageAttribute(): ProductImage
+    {
+      return $this->images()->orderBy('sort_order', 'asc')->first();
     }
 }

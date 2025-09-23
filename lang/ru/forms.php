@@ -26,8 +26,8 @@ return [
     'delete' => 'Удалить',
     'save' => 'Сохранить',
     'cancel' => 'Отмена',
-    'uploadImage' => 'Загрузить изображение',
-    'uploadDescription' => 'PNG или JPG',
+    'uploadImage' => 'Загрузить изображения',
+    'uploadDescription' => 'до 5 файлов PNG или JPG',
     'currentPassword' => 'Текущий пароль',
     'newPassword' => 'Новый пароль',
     'confirmPassword' => 'Подтвердите пароль'
