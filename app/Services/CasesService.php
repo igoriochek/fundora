@@ -37,15 +37,13 @@ class CasesService implements CasesServiceInterface
         return Product::where('is_visible', true)->get();
     }
 
-    public function createCase(array $validatedInput): void
+    public function createCase(array $validatedInput): Product
     {
-        $caseInput = [
+        return Product::create([
             'address' => $validatedInput['address'],
-            'image' => $validatedInput['image']->getClientOriginalName(),
             'is_visible' => $validatedInput['is_visible'] ?? false,
             'product_country_id' => $validatedInput['product_country_id'],
-        ];
-        Product::firstOrCreate($caseInput);
+        ]);
     }
 
     public function createCaseTranslations(int $caseId, array $validatedInput): void
@@ -67,7 +65,6 @@ class CasesService implements CasesServiceInterface
     {
         $caseInput = [
             'address' => $validatedInput['address'],
-            'image' => $validatedInput['image'],
             'is_visible' => $validatedInput['is_visible'] ?? false,
             'product_country_id' => $validatedInput['product_country_id'],
         ];
@@ -87,39 +84,73 @@ class CasesService implements CasesServiceInterface
         }
     }
 
-    public function casesWithSameImageExist(string $image): bool
-    {
-        $products = Product::select('id', 'image')
-            ->where('image', $image)->get();
-
-        if ($products->isEmpty())
-            return false;
-
-        return true;
-    }
-
-    public function uploadCaseImage(object $image): void
-    {
-        $imageName = $image->getClientOriginalName();
-        $path = $_SERVER['DOCUMENT_ROOT'] . '/images/cases';
-       
-        if (!file_exists($path)) {
-        mkdir($path, 0755, true);
-    }
-     $image->move($path, $imageName);
-
-    Log::info(__('Successfully uploaded case image.'));
-    }
-
     public function removeCaseImage(string $imageName): void
     {
-        $pathWithImage = $_SERVER['DOCUMENT_ROOT'] . "/images/cases/$imageName";
+        $pathWithImage = public_path('images/cases/' . $imageName);
 
-    if (file_exists($pathWithImage)) {
-        unlink($pathWithImage);
-        Log::info(__('Successfully removed case image.'));
-    } else {
-        Log::error(__('Image file not found.'));
+        if (file_exists($pathWithImage)) {
+            unlink($pathWithImage);
+            Log::info(__('Successfully removed case image.'));
+        } else {
+            Log::error(__('Image file not found.'));
+        }
     }
+
+    public function uploadCaseImages(Product $product, array $images, string $imageOrder): void
+    {
+        $orderIndexes = explode(',', $imageOrder);
+        $sortedFiles = [];
+
+        foreach ($orderIndexes as $index) {
+            if (isset($images[$index])) {
+                $sortedFiles[] = $images[$index];
+            }
+        }
+
+        foreach ($sortedFiles as $sortIndex => $image) {
+            $this->storeNewImage($product, $image, $sortIndex);
+        }
+
+        Log::info("Successfully uploaded case images.");
+    }
+
+    public function updateImageOrder(Product $case, array $imageOrder): void
+    {
+        foreach ($imageOrder as $item) {
+            if (!empty($item['id'])) {
+                $caseImage = $case->images()->find($item['id']);
+                if ($caseImage && $caseImage->sort_order !== $item['sort_order']) {
+                    $caseImage->update([
+                        'sort_order' => $item['sort_order'],
+                    ]);
+                }
+            }
+        }
+    }
+    
+    public function storeNewImage(Product $case, $file, int $sortOrder): void
+    {
+        $imageName = $this->saveImageToDisk($file);
+
+        $case->images()->create([
+            'image' => $imageName,
+            'sort_order' => $sortOrder,
+        ]);
+
+        Log::info("New case image uploaded: $imageName");
+    }
+
+    private function saveImageToDisk($file): string
+    {
+        $path = public_path('images/cases');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $imageName = uniqid() . '_' . $file->getClientOriginalName();
+        $file->move($path, $imageName);
+
+        return $imageName;
     }
 }

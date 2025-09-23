@@ -43,17 +43,22 @@ class CaseController extends Controller
 
             $validatedInput = $request->validated();
 
-            $this->casesService->createCase($validatedInput);
+            $case = $this->casesService->createCase($validatedInput);
 
-            $caseId = Product::select('id', 'created_at')->latest('created_at')->first()->id;
+            $this->casesService->createCaseTranslations($case->id, $validatedInput);
 
-            $this->casesService->createCaseTranslations($caseId, $validatedInput);
-            $this->casesService->uploadCaseImage($validatedInput['image']);
+            if ($request->hasFile('images')) {
+                $this->casesService->uploadCaseImages(
+                $case,
+                $request->file('images'),
+                $request->input('image_order')
+                );
+            }
 
             return redirect(route('cases.index'))
                 ->with('success', __('messages.successCaseCreate') . '.');
         } catch (Exception $e) {
-            return back()->with('error', $e->getMessage());
+        return back()->with('error', $e->getMessage());
         }
     }
 
@@ -78,26 +83,21 @@ class CaseController extends Controller
     public function update(UpdateProductRequest $request, Product $case): RedirectResponse
     {
         try {
+
             $this->authorize('update', $case);
 
             $validatedInput = $request->validated();
-            $validatedInput['image'] = array_key_exists('image',  $validatedInput)
-                ? $validatedInput['image']
-                : $case->image;
             $caseTranslations = $case->translations()->get();
-
-            if ($validatedInput['image'] !== $case->image) {
-                $this->casesService->removeCaseImage($case->image);
-                $this->casesService->uploadCaseImage($validatedInput['image']);
-
-                $validatedInput['image'] = $validatedInput['image']->getClientOriginalName();
-            }
 
             $this->casesService->updateCase($case, $validatedInput);
             $this->casesService->updateCaseTranslations($caseTranslations, $validatedInput);
+            $this->handleRemovedImages($request, $case);
+            $this->handleNewImages($request, $case);
+            $this->handleImageOrder($request, $case);
 
             return redirect(route('cases.index'))
-                ->with('success', __('messages.successCaseUpdate') . " '$case->name'.");
+                ->with('success', __('messages.successCaseUpdate') . " '{$case->name}'.");
+
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -108,15 +108,51 @@ class CaseController extends Controller
         try {
             $this->authorize('delete', $case);
 
-            $case->delete();
+            foreach ($case->images as $image) 
+            {
+                $this->casesService->removeCaseImage($image->image);
+            }
 
-            if (!$this->casesService->casesWithSameImageExist($case->image))
-                $this->casesService->removeCaseImage($case->image);
+            $case->delete();
 
             return redirect(route('cases.index'))
                 ->with('success', __('messages.successCaseDelete') . " '$case->name'.");
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    private function handleRemovedImages(UpdateProductRequest $request, Product $case): void
+    {
+        if (!$request->filled('removed_images')) return;
+
+        $removedImages = json_decode($request->input('removed_images'), true);
+
+        foreach ($removedImages as $imageName) 
+        {
+            $this->casesService->removeCaseImage($imageName);
+            $case->images()->where('image', $imageName)->delete();
+        }
+    }
+
+    private function handleNewImages(UpdateProductRequest $request, Product $case): void
+    {
+        if (!$request->hasFile('images')) return;
+
+        $imageOrder = json_decode($request->input('image_order'), true) ?? [];
+        foreach ($request->file('images') as $file) 
+        {
+            $orderItem = collect($imageOrder)->firstWhere('file_name', $file->getClientOriginalName());
+            $sortOrder = $orderItem['sort_order'] ?? 0;
+            $this->casesService->storeNewImage($case, $file, $sortOrder);
+        }
+    }
+
+    private function handleImageOrder(UpdateProductRequest $request, Product $case): void
+    {
+        if (!$request->filled('image_order')) return;
+
+        $imageOrder = json_decode($request->input('image_order'), true);
+        $this->casesService->updateImageOrder($case, $imageOrder);
     }
 }
