@@ -58,15 +58,29 @@
             </div>
         @endforeach
         <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="image">
-                {{ __('forms.uploadImage') . ' (' . __('forms.uploadDescription') . ')' }}
-            </label>
-            <input
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                id="image" type="file" name="image" value="{{ $case->image }}">
-            @error('image')
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="images">
+            {{ __('forms.uploadImage') . ' (' . __('forms.uploadDescription') . ')' }}
+        </label>
+        <input
+            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+            id="images" type="file" name="images[]" multiple>
+        <input type="hidden" name="image_order" id="image_order">
+        <input type="hidden" name="removed_images" id="removed_images">
+            @error('images')
                 <span class="text-red-500 pt-2">{{ $message }}</span>
             @enderror
+            @error('images.*')
+                <span class="text-red-500 pt-2">{{ $message }}</span>
+            @enderror
+            <div id="images_preview_block" class="mt-2">
+            <div id="images_preview" class="flex gap-2 flex-wrap">
+                @foreach ($case->images->sortBy('sort_order') as $image)
+                    <div class="relative w-24 h-24 border rounded overflow-hidden image-wrapper" data-id="{{ $image->id }}" data-sort-order>
+                        <img src="{{ asset('images/cases/' . $image->image) }}" class="object-cover w-full h-full" alt="Existing Image">
+                    </div>
+                @endforeach
+            </div>
+        </div>
         </div>
         <div class="flex flex-col justify-center mt-2">
             <div class="flex items-center">
@@ -174,4 +188,125 @@ document.querySelector('form').addEventListener('submit', e => {
     }
 
     setVisibilityValue()
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+<script>
+const imagesPreview = document.getElementById('images_preview');
+const imagesInput = document.getElementById('images');
+const removedInput = document.getElementById('removed_images');
+
+let allImages = Array.from(imagesPreview.querySelectorAll('.image-wrapper[data-id]')).map(wrapper => ({
+    id: wrapper.dataset.id,
+    src: wrapper.querySelector('img').src,
+    isNew: false
+}));
+
+let newFiles = [];
+
+function updateImageOrderInput() {
+    const imagesData = allImages.map((img, index) => ({
+        id: img.id || null,
+        isNew: img.isNew || false,
+        sort_order: index,
+        file_name: img.file?.name || null
+    }));
+
+    document.getElementById('image_order').value = JSON.stringify(imagesData);
+}
+
+function renderImages() {
+    imagesPreview.innerHTML = '';
+
+    allImages.forEach((img, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative w-24 h-24 border rounded overflow-hidden image-wrapper';
+        if(img.id) wrapper.dataset.id = img.id;
+
+        const imageEl = document.createElement('img');
+        imageEl.src = img.src;
+        imageEl.className = 'object-cover w-full h-full';
+        wrapper.appendChild(imageEl);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-80 hover:opacity-100 transition';
+            removeBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>`;
+        removeBtn.addEventListener('click', () => removeImage(index));
+        wrapper.appendChild(removeBtn);
+
+        if(index === 0) {
+            const starIcon = document.createElement('div');
+            starIcon.className = 'absolute top-0 left-0 star-icon bg-black opacity-80 rounded-full w-5 h-5 flex items-center justify-center';
+            starIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>`;
+            wrapper.appendChild(starIcon);
+        }
+
+        imagesPreview.appendChild(wrapper);
+    });
+}
+
+function removeImage(index) {
+    const img = allImages[index];
+
+    if(img.isNew) {
+        newFiles = newFiles.filter(f => f !== img.file);
+        syncInputFiles();
+    } else {
+        let removedImages = removedInput.value ? JSON.parse(removedInput.value) : [];
+        removedImages.push(img.src.split('/').pop());
+        removedInput.value = JSON.stringify(removedImages);
+    }
+
+    allImages.splice(index, 1);
+    renderImages();
+    updateImageOrderInput();
+}
+
+function syncInputFiles() {
+    const dt = new DataTransfer();
+    newFiles.forEach(f => dt.items.add(f));
+    imagesInput.files = dt.files;
+}
+
+imagesInput.addEventListener('change', () => {
+    Array.from(imagesInput.files).forEach(file => {
+        newFiles.push(file);
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            allImages.push({
+                src: e.target.result,
+                isNew: true,
+                file: file
+            });
+            renderImages();
+            updateImageOrderInput();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    syncInputFiles();
+});
+
+renderImages();
+
+const sortable = new Sortable(imagesPreview, {
+    animation: 150,
+    onEnd: function (evt) {
+        const movedItem = allImages.splice(evt.oldIndex, 1)[0];
+        allImages.splice(evt.newIndex, 0, movedItem);
+
+        renderImages();
+        updateImageOrderInput();
+    }
+});
+
 </script>
