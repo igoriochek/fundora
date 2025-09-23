@@ -26,8 +26,8 @@ return [
     'delete' => 'Usuń',
     'save' => 'Zapisz',
     'cancel' => 'Anuluj',
-    'uploadImage' => 'Prześlij obraz',
-    'uploadDescription' => 'PNG lub JPG',
+    'uploadImage' => 'Prześlij obrazy',
+    'uploadDescription' => 'do 5 plików PNG lub JPG',
     'currentPassword' => 'Aktualne hasło',
     'newPassword' => 'Nowe hasło',
     'confirmPassword' => 'Potwierdź hasło'

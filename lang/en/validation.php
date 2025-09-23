@@ -163,6 +163,10 @@ return [
     'url' => 'The :attribute field must be a valid URL.',
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
+    'case_images' => [
+    'at_least_one' => 'There must be at least one image. You cannot delete all without uploading new ones.',
+    'max_limit' => 'You cannot have more than :max images for this case.',
+],
 
     /*
     |--------------------------------------------------------------------------

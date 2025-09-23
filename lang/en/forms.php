@@ -26,8 +26,8 @@ return [
     'delete' => 'Delete',
     'save' => 'Save',
     'cancel' => 'Cancel',
-    'uploadImage' => 'Upload Image',
-    'uploadDescription' => 'PNG or JPG',
+    'uploadImage' => 'Upload Images',
+    'uploadDescription' => 'up to 5 PNG or JPG files',
     'currentPassword' => 'Current Password',
     'newPassword' => 'New Password',
     'confirmPassword' => 'Confirm Password'

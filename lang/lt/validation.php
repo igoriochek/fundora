@@ -163,6 +163,10 @@ return [
     'url' => 'Laukas :attribute turi būti galiojantis URL.',
     'ulid' => 'Laukas :attribute turi būti galiojantis ULID.',
     'uuid' => 'Laukas :attribute turi būti galiojantis UUID.',
+    'case_images' => [
+    'at_least_one' => 'Turi būti bent viena nuotrauka. Negalima ištrinti visų be naujų.',
+    'max_limit' => 'Negalite turėti daugiau nei :max nuotraukų.',
+],
 
     /*
     |--------------------------------------------------------------------------

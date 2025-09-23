@@ -26,8 +26,8 @@ return [
     'delete' => 'Ištrinti',
     'save' => 'Išsaugoti',
     'cancel' => 'Atšaukti',
-    'uploadImage' => 'Įkelti paveikslėlį',
-    'uploadDescription' => 'PNG arba JPG',
+    'uploadImage' => 'Įkelti paveikslėlius',
+    'uploadDescription' => 'iki 5 PNG arba JPG failų',
     'currentPassword' => 'Dabartinis slaptažodis',
     'newPassword' => 'Naujas slaptažodis',
     'confirmPassword' => 'Patvirtinti slaptažodį'
